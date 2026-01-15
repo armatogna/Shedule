@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp3"
         mc:Ignorable="d"
-        Title="Школьное расписание" Height="420" Width="500" ResizeMode="NoResize" SizeToContent="Manual">
+        Title="Расписание" Height="420" Width="500" ResizeMode="NoResize" SizeToContent="Manual">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="59*"/>
