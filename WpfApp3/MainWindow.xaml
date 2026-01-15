@@ -1,0 +1,83 @@
+﻿<Window x:Class="WpfApp3.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Школьное расписание" Height="270" Width="270" ResizeMode="NoResize" SizeToContent="Manual">
+    <Grid>
+
+
+        <TabControl Margin="10">
+            <TabItem Header="Создание" HorizontalAlignment="Center" Margin="0,-2,0,0" Width="62">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" Width="154" Grid.Row="0">
+                        <TextBlock Text="Название класса:" Width="154"/>
+                        <TextBox Name="txtGroupName" Grid.Row="1" Width="154"/>
+
+                        <TextBlock Text="Предметы:" Visibility="Hidden"/>
+
+                        <Button Content="Добавить класс" Click="AddGroup_Click" Grid.Row="2"  Width="154"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical"  Grid.Row="1">
+                        <TextBlock Text="Название предмета:"  Width="154"/>
+                        <TextBox Name="txtSubjectName" Grid.Row="1"  Width="154"/>
+                        <TextBlock Text="Предметы:" Visibility="Hidden"/>
+                        <Button Content="Добавить предмет" Click="AddSubject_Click" Grid.Row="2"  Width="154"/>
+                    </StackPanel>
+
+
+
+                </Grid>
+            </TabItem>
+
+
+
+            <TabItem Header="Добавление" Margin="-2,-2,2,0">
+                <Grid>
+
+
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Предмет:"  Width="154"/>
+                        <ComboBox Name="comboSubject" Width="154"/>
+                        <TextBlock Text="Группа:"  Width="154"/>
+                        <ComboBox Name="comboSubjects" Width="154"/>
+                        <TextBlock Text="Кабинет:" Width="154"/>
+                        <TextBox x:Name="txtFullNam" Width="154"/>
+
+                        <TextBlock Text="Количество уроков:"  Width="154"/>
+                        <TextBox Name="txtGroupN" Grid.Row="1"  Width="154"/>
+                        <TextBlock Text="Предметы:" Visibility="Hidden"/>
+                        <Button x:Name="A_Button" Content="Добавить предмет" Click="AddGroupSubject_Click"  Width="154"/>
+
+
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Генерация" Margin="-2,-2,2,0">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,137">
+                        <TextBlock Text="Введите год для расписания:" Height="14"/>
+                        <TextBox x:Name="txtFullName5" Height="18" Width="44"/>
+
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,54,0,92">
+                        <TextBlock Text="Введите макс. кол-во пар в день:" Height="18"/>
+                        <TextBox x:Name="txtFullNam5" Height="18" Width="20"/>
+
+                    </StackPanel>
+
+
+                    <Button x:Name="B1" Content="Генерация" Click="A_Click" Margin="-3,134,0,32"/>
+
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
