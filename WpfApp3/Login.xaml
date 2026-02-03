@@ -1,0 +1,60 @@
+﻿<Window x:Class="WpfApp3.Login"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp3"
+        mc:Ignorable="d"
+        Title="Login" Height="490" Width="440">
+    <Grid>
+        <Border BorderThickness="2" BorderBrush="Black">
+            <TabControl>
+                <TabItem Header="Авторизация">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="43*"/>
+                            <ColumnDefinition Width="87*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Height="200" Width="370" Orientation="Horizontal" Margin="10,1,10,201" Grid.ColumnSpan="2" >
+                            <Image Source="/Resources/icon.ico"  Width="140" Height="140"/>
+                            <StackPanel>
+                                <TextBlock Text="Введите логин: " FontSize="22" Margin="3"/>
+                                <TextBox x:Name="t1" FontSize="22" Margin="3"/>
+                                <TextBlock Text="Введите пароль: " FontSize="22" Margin="3"/>
+                                <TextBox x:Name="t2" FontSize="22" Margin="3"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                        <StackPanel Grid.ColumnSpan="2" Margin="0,251,0,0">
+                            
+                        <Button Click="Button_Click" FontSize="24" Height="60" Width="190" Content="Войти" Background="DeepSkyBlue" Grid.ColumnSpan="2"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Авторизация">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="43*"/>
+                            <ColumnDefinition Width="87*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Height="200" Width="370" Orientation="Horizontal" Margin="10,1,10,201" Grid.ColumnSpan="2" >
+                            <Image Source="/Resources/icon.ico"  Width="140" Height="140"/>
+                            <StackPanel>
+                                <TextBlock Text="Введите логин: " FontSize="22" Margin="3"/>
+                                <TextBox x:Name="t3" FontSize="22" Margin="3"/>
+                                <TextBlock Text="Введите пароль: " FontSize="22" Margin="3"/>
+                                <TextBox x:Name="t4" FontSize="22" Margin="3"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                        <StackPanel Grid.ColumnSpan="2" Margin="0,251,0,0">
+                            
+                        <Button Click="Button1_Click" FontSize="24" Content="Создать"    Height="60" Width="190"   Background="DeepSkyBlue" Grid.ColumnSpan="2"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Border>
+
+    </Grid>
+</Window>

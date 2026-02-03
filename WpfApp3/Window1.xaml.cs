@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WpfApp3.EF;
+using WpfApp3.EF.TableClasses;
 
 namespace WpfApp3
 {
@@ -22,23 +14,42 @@ namespace WpfApp3
         {
             InitializeComponent();
             AddGrid();
+            
+        }
+        public Window1(Account account)
+        {
+            InitializeComponent();
+            AddGrid();
+            account1 = account;
+            string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\icon.ico");
+            Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
+            this.Icon = BitmapFrame.Create(iconUri);
         }
         public void Sd_Click(object sender, RoutedEventArgs e)
         {
-            OpenWindow mainWindow = new();
+            OpenWindow mainWindow = new(account1);
             mainWindow.Show();
             this.Close();
         }
+        Account account1 = new() { Name = "Default", Password = "Password" };
+
         public void AddGrid()
         {
             using (ApplicationContext db = new ApplicationContext())
             {
-                var d = db.Subjects.ToList();
-                db.Subjects.RemoveRange(db.Subjects.Where(e=>e.Name == null));
+                db.Subjects.RemoveRange(db.Subjects.Where(e => e.Name == null));
+                List<Subjects> d = db.Subjects.ToList();
                 dataGrid2.ItemsSource = d;
-                var b = db.Groups.ToList();
                 db.Groups.RemoveRange(db.Groups.Where(e => e.Name == null));
+                List<Groups> b = db.Groups.ToList();
                 dataGrid.ItemsSource = b;
+                comboS.ItemsSource = b;
+                comboS.DisplayMemberPath = "Name";
+                db.Students.RemoveRange(db.Students.Where(e => e.fullName == null));
+                List<Student> q = db.Students.ToList();
+                dataGrid.ItemsSource = q;
+                db.SaveChanges();
+
             }
         }
         public void S_Click(object sender, RoutedEventArgs e)
@@ -50,33 +61,85 @@ namespace WpfApp3
                 {
                     Text2.Background = Brushes.White;
                     Text2.ToolTip = null;
-                    Subjects? A = db.Subjects.FirstOrDefault(e => e.id == i);
-                    MessageBox.Show(A.Name);
-                    if (Text3.Text != null)
+                    Subjects A = db.Subjects.FirstOrDefault(e => e.id == i);
+                    if (A != null)
                     {
-                        A.Name = Text3.Text;
-                    }
-                    if (Text4.Text != "")
-                    {
-                        A.Hours = Convert.ToInt16(Text4.Text);
-                    }
-                    if (Text5.Text != "")
-                    {
-                        A.Cabinet = Tet1.Text;
-                    }
-                    db.Subjects.Update(A);
-                    db.SaveChanges();
-                    Text2.Clear();
-                    Text3.Clear();
-                    Text4.Clear();
-                    Text5.Clear();
+                        MessageBox.Show(A.Name);
+                        if (Text3.Text != null)
+                        {
+                            A.Name = Text3.Text;
+                        }
+                        if (Text4.Text != "")
+                        {
+                            A.num = Convert.ToInt16(Text4.Text);
+                        }
+                        if (Text5.Text != "")
+                        {
+                            A.Cabinet = Tet1.Text;
+                        }
+                        db.Subjects.Update(A);
+                        db.SaveChanges();
+                        Text2.Clear();
+                        Text3.Clear();
+                        Text4.Clear();
+                        Text5.Clear();
 
-                    AddGrid();
+                        AddGrid();
+                    }
                 }
                 else
                 {
                     Text2.Background = Brushes.LightPink;
-                    Text2.ToolTip = "Класса с данным ID не существует.";
+                    Text2.ToolTip = "Предмета с данным ID не существует.";
+                }
+
+            }
+        }
+        public void Add_Click(object sender, RoutedEventArgs e)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                int i = Convert.ToInt32(Text2.Text);
+                if (db.Students.Any(e => e.id == i))
+                {
+                    Text2.Background = Brushes.White;
+                    Text2.ToolTip = null;
+                    Student? A = db.Students.FirstOrDefault(e => e.id == i);
+                    if (A != null)
+                    {
+                        MessageBox.Show(A.fullName);
+                        if (txtGroupName0.Text != null)
+                        {
+                            A.id = Convert.ToInt32(Text3.Text);
+                        }
+                        if (txtGroupName1.Text != null)
+                        {
+                            A.fullName = Text3.Text;
+                        }
+                        if (txtGroupName2.Text != null)
+                        {
+                            A.email = Text4.Text;
+                        }
+                        if (comboS.SelectedItem != null)
+                        {
+#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
+                            A.group = db.Groups.First(e => e.Name == comboS.SelectedItem.ToString().Trim());
+#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
+                        }
+                        db.Students.Update(A);
+                        db.SaveChanges();
+                        Text2.Clear();
+                        Text3.Clear();
+                        Text4.Clear();
+                        Text5.Clear();
+
+                        AddGrid();
+                    }
+                }
+                else
+                {
+                    Text2.Background = Brushes.LightPink;
+                    Text2.ToolTip = "Предмета с данным ID не существует.";
                 }
 
             }
@@ -91,13 +154,14 @@ namespace WpfApp3
                     Text.Background = Brushes.White;
                     Text.ToolTip = null;
                     Groups? A = db.Groups.FirstOrDefault(e => e.Id == i);
-                    if (Tet1.Text != null)
-                    {
-                        A.Name = Tet1.Text;
-                        db.Groups.Update(A);
-                        db.SaveChanges();
-                        Text.Clear();
-                        Tet1.Clear();
+                    if (A!=null) { if (Tet1.Text != null)
+                        {
+                            A.Name = Tet1.Text;
+                            db.Groups.Update(A);
+                            db.SaveChanges();
+                            Text.Clear();
+                            Tet1.Clear();
+                        } 
                     }
                 }
                 else
@@ -108,5 +172,55 @@ namespace WpfApp3
                 AddGrid();
             }
             }
+
+
+        private void Text_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            TextBox text = sender as TextBox;
+            if (text != null)
+            {
+                if (!text.Text.All(char.IsDigit))
+                {
+                    text.Clear();
+                }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                Groups a = db.Groups.FirstOrDefault(e => e.Id == Convert.ToInt32(Text.Text));
+                if (a != null)
+                {
+                    db.Groups.Remove(a);
+                    db.SaveChanges();
+                }
+            }
+        }
+        private void B_Click(object sender, RoutedEventArgs e)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                Subjects a = db.Subjects.FirstOrDefault(e => e.id == Convert.ToInt32(Text.Text));
+                if (a != null)
+                {
+                    db.Subjects.Remove(a);
+                    db.SaveChanges();
+                }
+            }
+        }
+        private void Bu_Click(object sender, RoutedEventArgs e)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                Student a = db.Students.FirstOrDefault(e => e.id == Convert.ToInt32(Text.Text));
+                if (a != null)
+                {
+                    db.Students.Remove(a);
+                    db.SaveChanges();
+                }
+            }
+        }
     }
 }

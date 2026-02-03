@@ -1,96 +1,146 @@
-﻿using System.Collections.ObjectModel;
-using System.Data;
-using System.Text;
+﻿
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using WpfApp3.EF;
+using WpfApp3.EF.TableClasses;
 
 namespace WpfApp3;
 public partial class MainWindow : Window
 {
 
-    public List<string?> Subjects { get; set; } = new List<string?>();
     public List<Groups> Groups { get; set; } = new List<Groups>();
-    public List<string?> Group { get; set; } = new List<string?>();
-
+    
+    
+    Account account1 = new()
+    {
+        Name = "Default",
+        Password = "Password"
+    };
     public MainWindow()
     {
         InitializeComponent();
-        string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\ico4.bmp");
+        string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\icon.ico");
         Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
         this.Icon = BitmapFrame.Create(iconUri);
+        
         AddSAndG();
     }
-
-    private void AddSubject_Click(object sender, RoutedEventArgs e)
+    public MainWindow(Account account)
     {
-        string subject = txtSubjectName.Text.Trim();
-        comboSubject.Items.Add(subject);
-        
-        txtSubjectName.Clear();
+        InitializeComponent();
+        string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\icon.ico");
+        Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
+        this.Icon = BitmapFrame.Create(iconUri);
+        account1 = account;
+        using (ApplicationContext db = new ApplicationContext())
+        {
+            //List<string> list = new();
+            List<Groups> groups = db.Groups.Where(i => i.AccountId == account1.Id).ToList();
+            MessageBox.Show(groups.Count.ToString());
+            foreach (Groups subject in groups)
+            {
+                comboSubjects.Items.Add(subject.Name);
+                MessageBox.Show(subject.Name);
+            }
+        }
+            AddSAndG();
     }
-
+    public List<string> sub = new();
+    public List<string> gro = new();
+    List<Groups> groups = new();
+    List<Subjects> subjects = new();
+    List<Student> students = new();
     public void AddSAndG()
     {
         using (ApplicationContext db = new ApplicationContext())
         {
-            var group = db.Groups.ToList();
-            var subjects = db.Subjects.ToList();
-            foreach (Subjects subject in subjects) { comboSubject.Items.Add(subject.Name); }
-            foreach (Groups subject in group) { comboSubject.Items.Add(subject.Name); }
+            groups = db.Groups.ToList();
+            subjects = db.Subjects.ToList();
+            students = db.Students.ToList();
+            foreach (Groups subject in groups) { gro.Add(subject.Name); }
+            foreach (string gr in gro) { comboSubjects.Items.Add(gr); }
         }
     }
 
-
+    private void Text_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        TextBox text = sender as TextBox;
+#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
+        if (!text.Text.All(char.IsDigit))
+        {
+            text.Clear();
+        }
+#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
+    }
     public List<string> subjects2 = new List<string>();
     private void AddGroupSubject_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrEmpty(txtFullNam.Text) || string.IsNullOrEmpty(txtGroupN.Text))
+        if (string.IsNullOrEmpty(txtFullNam.Text) || string.IsNullOrEmpty(comboSubject.Text) || string.IsNullOrEmpty(txtFullNam1.Text))
         {
             txtFullNam.Background = Brushes.LightPink;
             txtFullNam.ToolTip = "Поле не может быть пустым.";
-            txtGroupN.Background = Brushes.LightPink;
-            txtGroupN.ToolTip = "Поле не может быть пустым.";
+            comboSubject.Background = Brushes.LightPink;
+            comboSubject.ToolTip = "Поле не может быть пустым.";
         }
         else
         {
-            txtFullNam.Background = Brushes.White;
+            comboSubject.Background = Brushes.White;
+            comboSubject.ToolTip = null;
+            txtFullNam.Background = Brushes.Gray;
             txtFullNam.ToolTip = null;
-            txtGroupN.Background = Brushes.White;
-            txtGroupN.ToolTip = null;
-            if (!string.IsNullOrEmpty(comboSubject.SelectedItem as string) && !string.IsNullOrEmpty(comboSubjects.SelectedItem as string))
+            
+            if (!string.IsNullOrEmpty(comboSubject.Text) && !string.IsNullOrEmpty(comboSubjects.SelectedItem as string))
             {
-                comboSubject.Background = Brushes.Gray;
+                comboSubject.Background = Brushes.White;
                 comboSubject.ToolTip = null;
                 comboSubjects.Background = Brushes.Gray;
                 comboSubjects.ToolTip = null;
-                if (Groups != null)
+                List<Groups> groups = new List<Groups>();
+                using (ApplicationContext db = new ApplicationContext())
                 {
+                    foreach (string item in List.Items)
+                    {
+                        if (db.Groups.Any(e => e.Name == item))
+                        {
+                            groups.Add(db.Groups.First(e => e.Name == item)); 
+                        }
+                    } 
+                }
+                if (Groups != null && !gro.Contains(comboSubject.Text) && comboSubjects.SelectedItem!=null)
+                {
+#pragma warning disable CS8600 // Преобразование литерала, допускающего значение NULL или возможного значения NULL в тип, не допускающий значение NULL.
                     string groupName = comboSubjects.SelectedItem as string;
-                    Groups fGroup = Groups.First(p => p.Name == groupName.ToUpper());
-                    string name = (string)comboSubject.SelectedItem;
+#pragma warning restore CS8600 // Преобразование литерала, допускающего значение NULL или возможного значения NULL в тип, не допускающий значение NULL.
+                              //Groups fGroup = Groups.First(p => p.Name == groupName.ToUpper());
+
+                    string name = (string)comboSubject.Text;
                     Subjects subjects1 = new Subjects()
                     {
                         Name = name.ToUpper(),
-                        Hours = Convert.ToInt32(txtGroupN.Text.ToUpper().Trim()),
                         Cabinet = txtFullNam.Text.ToUpper().Trim(),
-                        GroupId = fGroup.Id,
-                        Weeks = Convert.ToInt32(txtGroupN.Text.ToUpper().Trim()) / 34
+                        num = Convert.ToInt32(txtFullNam1.Text.Trim())
                     };
                     using (ApplicationContext db = new ApplicationContext())
                     {
-                        if (!db.Subjects.Any(e => e.Name == subjects1.Name && e.GroupId == subjects1.GroupId))
+                    foreach (Groups item in groups)
+                    {
+                        GroupSubjects groupSubject = new()
                         {
-                            txtGroupN.Clear();
+                            Group = item,
+                            Subject = subjects1
+                        };
+
+                        db.groupSubjects.Add(groupSubject);
+                        db.SaveChanges();
+                        }
+                        
+
+                    
+                    
+                        if (!subjects.Contains(subjects1))
+                        {
                             txtFullNam.Clear();
                             AddSubject(subjects1);
                             A_Button.ToolTip = null;
@@ -98,10 +148,17 @@ public partial class MainWindow : Window
                         }
                         else
                         {
-                            A_Button.ToolTip = "Такой урок уже существует";
+                            A_Button.ToolTip = "Такой предмет уже существует";
                             A_Button.Background = Brushes.LightPink;
                         }
+                        //db.Subjects.Add(subjects1);
+                        //db.SaveChanges();
                     }
+                }
+                else
+                {
+                    MessageBox.Show("Ошибка!");
+                    comboSubject.Clear();
                 }
             }
             else
@@ -111,7 +168,11 @@ public partial class MainWindow : Window
                 comboSubjects.Background = Brushes.LightPink;
                 comboSubjects.ToolTip = "Поле не может быть пустым.";
             }
+
         }
+        comboSubject.Clear();
+        txtFullNam.Clear();
+        txtFullNam1.Clear();
     }
     private void AddGroup_Click(object sender, RoutedEventArgs e)
     {
@@ -127,14 +188,97 @@ public partial class MainWindow : Window
 
             txtGroupName.ToolTip = null;
 
+#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
             Groups group = new Groups
             {
                 Name = txtGroupName.Text.ToUpper().Trim(),
+                AccountId = account1.Id
             };
+#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
             Groups.Add(group);
             txtGroupName.Clear();
             comboSubjects.Items.Add(group.Name);
-            AddGroup(group);
+            comboS.Items.Add(group.Name);
+            
+            if (!groups.Contains(group))
+            {
+                txtGroupName.Clear();
+                AddGroup(group);
+                A_But.ToolTip = null;
+                A_But.Background = Brushes.White;
+            }
+            else
+            {
+                A_But.ToolTip = "Такая группа уже существует";
+                A_But.Background = Brushes.LightPink;
+            }
+            
+        }
+    }
+    private void AddStudent_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(txtGroupName1.Text))
+        {
+            txtGroupName1.Background = Brushes.LightPink;
+
+            txtGroupName1.ToolTip = "Поле не может быть пустым.";
+        }
+        else
+        {
+            txtGroupName1.Background = Brushes.White;
+
+            txtGroupName1.ToolTip = null;
+            if (string.IsNullOrEmpty(txtGroupName2.Text))
+            {
+                txtGroupName2.Background = Brushes.LightPink;
+
+                txtGroupName2.ToolTip = "Поле не может быть пустым.";
+            }
+            else
+            {
+
+
+                txtGroupName2.Background = Brushes.White;
+
+                txtGroupName2.ToolTip = null;
+                if (!string.IsNullOrEmpty(comboSubject.Text) && !string.IsNullOrEmpty(comboSubjects.SelectedItem as string))
+                {
+                    comboSubject.Background = Brushes.Gray;
+                    comboSubject.ToolTip = null;
+                    comboSubjects.Background = Brushes.Gray;
+                    comboSubjects.ToolTip = null;
+                }
+                else
+                {
+                    Groups fGroup = Groups.First(p => p.Name.Equals(comboS.SelectedItem.ToString(), StringComparison.CurrentCultureIgnoreCase));
+                    Student student = new()
+                    {
+                        fullName = txtGroupName1.Text.ToUpper().Trim(),
+                        email = txtGroupName2.Text.ToUpper().Trim(),
+                        group = fGroup
+                    };
+                    
+                    txtGroupName1.Clear();
+                    txtGroupName2.Clear();
+                    using (ApplicationContext db = new ApplicationContext())
+                    {
+                        if (!students.Contains(student))
+                        {
+                            txtGroupName1.Clear();
+                            txtGroupName2.Clear();
+                            db.Students.Add(student);
+                            db.SaveChanges();
+                            Button.ToolTip = null;
+                            Button.Background = Brushes.White;
+                        }
+                        else
+                        {
+                            Button.ToolTip = "Такой уже существует";
+                            Button.Background = Brushes.LightPink;
+                        }
+                    }
+                }
+            }
         }
     }
     private void A_Click(object sender, RoutedEventArgs e)
@@ -151,22 +295,12 @@ public partial class MainWindow : Window
             txtFullName5.Background = Brushes.White;
             txtFullName5.ToolTip = null;
         }
-        if (string.IsNullOrEmpty(txtFullNam5.Text))
-        {
-            txtFullNam5.Background = Brushes.LightPink;
-            txtFullNam5.ToolTip = "Поле не может быть пустым.";
-            q = 1;
-        }
-        else
-        {
-            txtFullNam5.Background = Brushes.White;
-            txtFullNam5.ToolTip = null;
-        }
+        
         if (q != 1)
         {
             int s = Convert.ToInt32(txtFullName5.Text);
-            int d = Convert.ToInt16(txtFullNam5.Text.Trim());
-            Schedule schedule = new Schedule(s, d);
+            int d = Convert.ToInt32(txtFullName1.Text);
+            Schedule schedule = new Schedule(s, d, account1);
             schedule.Show();
             this.Close();
         }
@@ -176,14 +310,18 @@ public partial class MainWindow : Window
     {
         using (ApplicationContext db = new ApplicationContext())
         {
-            
 
+            /*if (!db.Groups.Any(i=>i.Name == group.Name))
+            { */
                 db.Groups.Add(group);
 
 
                 db.SaveChanges();
-
-
+            /*}
+            else
+            {
+                MessageBox.Show("Такая группа уже существует");
+            }*/
                
             
 
@@ -203,7 +341,16 @@ public partial class MainWindow : Window
 
         }
     }
-   
+
+    private void B_Click(object sender, RoutedEventArgs e)
+    {
+        List.Items.Add(comboSubjects.SelectedItem.ToString());
+    }
+
+    private void txtFullNam_TextChanged(object sender, TextChangedEventArgs e)
+    {
+
+    }
 }
 
 

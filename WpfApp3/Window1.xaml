@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp3"
         mc:Ignorable="d"
-        Title="Расписание" Height="420" Width="500" ResizeMode="NoResize" SizeToContent="Manual">
+        Title="Расписание" Height="420" Width="790" ResizeMode="NoResize" SizeToContent="Manual">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="59*"/>
@@ -13,16 +13,27 @@
             <RowDefinition Height="58"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <ScrollViewer Grid.Column="1">
             <DataGrid x:Name="dataGrid2" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Width="1*" Binding="{Binding id}" />
                     <DataGridTextColumn Header="Название" Width="3*" Binding="{Binding Name}" />
-                    <DataGridTextColumn Header="Часы" Width="1*" Binding="{Binding Hours}" />
+                    <DataGridTextColumn Header="Уроки" Width="1.2*" Binding="{Binding num}" />
                     <DataGridTextColumn Header="Каб." Width="1*" Binding="{Binding Cabinet}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="2">
+            <DataGrid x:Name="dataGrid3" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Width="0.5*" Binding="{Binding id}" />
+                    <DataGridTextColumn Header="ФИО" Width="2.1*" Binding="{Binding fullName}" />
+                    <DataGridTextColumn Header="Email" Width="1.4*" Binding="{Binding email}" />
+                    <DataGridTextColumn Header="Группа" Width="0.8*" Binding="{Binding group.Name}" />
                 </DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>
@@ -36,27 +47,53 @@
             </DataGrid>
 
         </ScrollViewer>
-        <StackPanel Margin="5,5,5,5" Grid.Row="1">
+        <StackPanel Orientation="Vertical" Margin="5" Grid.Row="1" Grid.Column="2" DataContext="">
+            <TextBlock Text="ID:"   Margin="2"  />
+            <TextBox Name="txtGroupName0" KeyDown="Text_KeyDown" Grid.Row="1" Margin="2" />
+            <TextBlock Text="ФИО студента:"   Margin="2"  />
+            <TextBox Name="txtGroupName1" Grid.Row="1" KeyDown="Text_KeyDown" Margin="2" />
+            <TextBlock Text="Эл. почта студента:" Margin="2"/>
+            <TextBox Name="txtGroupName2" Grid.Row="1" KeyDown="Text_KeyDown" Margin="2"/>
+            <TextBlock Text="Группа студента:" Margin="2"/>
+
+            <ComboBox Name="comboS" Grid.Row="1" Margin="2"/>
+            <TextBlock/>
+            <DockPanel>
+                <Button Content="Удалить" Width="auto" Click="Bu_Click" Margin="2"/>
+                <Button x:Name="Button" Content="Изменить"  Click="Add_Click" Margin="2"/>
+            </DockPanel>
+
+
+        </StackPanel>
+        <StackPanel Margin="5" Grid.Row="1">
             <TextBlock Text="ID: "/>
-            <TextBox x:Name="Text" Margin="2"/>
+            <TextBox x:Name="Text" KeyDown="Text_KeyDown" Margin="2"/>
             <TextBlock Text="Название: "/>
-            <TextBox x:Name="Tet1" Margin="2"/>
+            <TextBox x:Name="Tet1" KeyDown="Text_KeyDown" Margin="2"/>
             <TextBlock Text="Название: " Visibility="Hidden"/>
-            <Button Content="Изменить" Margin="2" Click="A_Click"/>
+            
+            <DockPanel>
+                <Button Content="Удалить" Width="auto" Click="Button_Click" Margin="2"/>
+                <Button Content="Изменить" Margin="2" Click="A_Click"/>
+            </DockPanel>
         </StackPanel>
         <StackPanel Margin="5,5,5,5" Grid.Row="1" Grid.Column="1">
             <TextBlock Text="ID: "/>
-            <TextBox x:Name="Text2" Margin="2"/>
+            <TextBox x:Name="Text2" KeyDown="Text_KeyDown" Margin="2"/>
             <TextBlock Text="Название: "/>
-            <TextBox x:Name="Text3" Margin="2"/>
-            <TextBlock Text="Часы: "/>
-            <TextBox x:Name="Text4" Margin="2"/>
+            <TextBox x:Name="Text3" KeyDown="Text_KeyDown" Margin="2"/>
+            <TextBlock Text="Количество уроков: "/>
+            <TextBox x:Name="Text4" KeyDown="Text_KeyDown" Margin="2"/>
             <TextBlock Text="Кабинет: "/>
-            <TextBox x:Name="Text5" Margin="2"/>
+            <TextBox x:Name="Text5" KeyDown="Text_KeyDown" Margin="2"/>
             <TextBlock Text="Название: " Visibility="Hidden"/>
-            <Button Content="Изменить" Margin="2" Click="S_Click"/>
+            
+            <DockPanel>
+                <Button Content="Удалить" Click="B_Click" Width="auto" Margin="2"/>
+                <Button Content="Изменить" Margin="2" Click="S_Click"/>
+            </DockPanel>
         </StackPanel>
 
-        <Button Content="Вернуться" Margin="178,221,178,39" Click="Sd_Click" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="2"/>
+        <Button Content="Вернуться" Margin="114,10,290,9" Click="Sd_Click" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

@@ -10,6 +10,12 @@
     <BaseOutputPath>bin\</BaseOutputPath>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <ApplicationIcon>Resources\iconF.ico</ApplicationIcon>
+    <StartupObject>WpfApp3.App</StartupObject>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,9 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="EF\TableClasses\Lesson.cs~RF569cbda.TMP" />
     <None Remove="ico3.ico" />
     <None Remove="lx2430h4.utv~" />
     <None Remove="Resources\icon.bmp" />
+    <None Remove="Resources\icon.ico" />
     <None Remove="Schedule.xaml~RF10db7b00.TMP" />
   </ItemGroup>
 
@@ -29,6 +37,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DocX" Version="5.0.0" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
       <PrivateAssets>all</PrivateAssets>
@@ -38,9 +48,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MimeKit" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="PgDump" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,13 +69,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
     <Folder Include="JSONs\" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Resources\icon.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\icon.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 

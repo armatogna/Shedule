@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WpfApp3.EF.TableClasses;
 
 namespace WpfApp3.EF
 {
@@ -10,11 +11,10 @@ namespace WpfApp3.EF
     {
         public int id { get; set; }
         public string? Name { get; set; }
-        public int Hours { get; set; }
-        public int Weeks { get; set; }
-        public int idL { get; set; }
         public string? Cabinet { get; set; }
-        public int GroupId { get; set; }
+        public int num { get; set; } = 0;
+        public ICollection<GroupSubjects>? GS { get; set; }
+        public ICollection<Lesson>? lessons { get; set; }
         
     }
 
