@@ -38,6 +38,8 @@ namespace WpfApp3
             Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
             this.Icon = BitmapFrame.Create(iconUri);
             account1 = account;
+
+            MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
         }
         public bool a = false;
         public void Schedule_Click(object sender, RoutedEventArgs e)
@@ -54,12 +56,13 @@ namespace WpfApp3
                 using (var transaction = db.Database.BeginTransaction())
                 {
 
-                    List<Subjects> entity = db.Subjects.ToList();
-                    List<Student> ent = db.Students.ToList();
-                    db.Subjects.RemoveRange(entity);
-                    db.Students.RemoveRange(ent);
-                    var w = db.Groups.ToList();
-                    db.Groups.RemoveRange(w);
+                    //List<Subjects> entity = db.Subjects.ToList();
+                    List<Lesson> entity = db.Lessons.Where(o=>o.AccountId == account1.Id).ToList();
+                    //List<Student> ent = db.Students.ToList();
+                    //db.Subjects.RemoveRange(entity);
+                    //db.Students.RemoveRange(ent);
+                    //var w = db.Groups.ToList();
+                    db.Lessons.RemoveRange(entity);
                     db.SaveChanges();
 
 

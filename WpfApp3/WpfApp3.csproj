@@ -73,6 +73,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Include="App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Resources\icon.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

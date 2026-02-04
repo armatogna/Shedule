@@ -41,7 +41,7 @@
                         <TextBox Name="txtGroupName2" Grid.Row="1" Width="154"/>
                         <TextBlock Text="Группа студента:" Width="154"/>
 
-                        <ComboBox Name="comboS" Grid.Row="1" Width="154"/>
+                        <ComboBox x:Name="comboS" Grid.Row="1" Width="154"/>
                         <TextBlock/>
                         <Button x:Name="Button" Content="Добавить студента" Click="AddStudent_Click" Grid.Row="2"  Width="154"/>
                     </StackPanel>

@@ -13,7 +13,7 @@ namespace WpfApp3.EF
         public string? Name { get; set; }
         public string? Cabinet { get; set; }
         public int num { get; set; } = 0;
-        public ICollection<GroupSubjects>? GS { get; set; }
+        public ICollection<GroupSubjects>? GS { get; set; } = new List<GroupSubjects>();
         public ICollection<Lesson>? lessons { get; set; }
         
     }

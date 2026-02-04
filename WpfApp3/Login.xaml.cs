@@ -60,17 +60,16 @@ namespace WpfApp3
             }
             if (tr == false)
             {
-                bool y = false;
+                Account y = new() { Name = "", Password=""};
                 using (ApplicationContext db = new ApplicationContext())
                 {
                     List<Account> accounts = db.Accounts.Where(i => i.Name == t1.Text).ToList();
-                    y = accounts.Any(k => k.Password == t2.Text);
-                    account = accounts.First(k => k.Password == t2.Text);
-
+                    y = accounts.FirstOrDefault(k => k.Password == t2.Text);
+                    MessageBox.Show($"{y.Name}{y.Id.ToString()}");
                 }
-                if (y == true)
+                if (y.Name != "")
                 {
-                    OpenWindow openWindow = new OpenWindow(account);
+                    OpenWindow openWindow = new OpenWindow(y);
                     openWindow.Show();
                     this.Close();
 

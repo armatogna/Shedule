@@ -20,7 +20,10 @@ namespace WpfApp3
 
 #pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
 #pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
-                    foreach (Groups group in db.Groups.Where(h => h.GS.Any(i => i.Subject.lessons != null)))
+                    List<Subjects> d = db.Subjects.Where(r => r.lessons != null).ToList();
+                    List<int> subId = d.Select(p => p.id).ToList();
+
+                    foreach (Groups group in db.Groups.Where(h => h.GS.Any(i => subId.Contains(i.Subject))))
                     {
                         // Добавляем название группы
                         document.InsertParagraph($"Группа: {group.Name}");

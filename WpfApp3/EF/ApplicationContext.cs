@@ -22,13 +22,5 @@ public class ApplicationContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
-        modelBuilder.Entity<GroupSubjects>()
-            .HasOne(gs => gs.Group)
-            .WithMany(g => g.GS);
-
-        modelBuilder.Entity<GroupSubjects>()
-            .HasOne(gs => gs.Subject)
-            .WithMany(s => s.GS);
     }
 }

@@ -14,6 +14,7 @@ namespace WpfApp3;
 /// </summary>
 public partial class App : Application
 {
+    
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -50,48 +51,7 @@ public partial class App : Application
         string error = process.StandardError.ReadToEnd();*/
         
     }
-    public async void PgDump(Account account)
-    {
-        ConnectionOptions options = new ConnectionOptions("localhost", 5432, "postgres", "ksanox", "postgres");
-        PgClient client = new PgClient(options);
-        using MemoryStream memoryStream = new MemoryStream();
-        StreamOutputProvider outputProvider = new StreamOutputProvider(memoryStream);
-        FileOutputProvider provider = new("Dump.tar");
-        await client.DumpAsync(provider, timeout: TimeSpan.FromMinutes(1));
-        /*string PDPath = @"C:\ProgramFiles\PostgreSQL\17\bin\pg_dump.exe";
-        string db = "postgres";
-        string user = "postgres";
-        string pass = "ksanox";
-        string dump = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dump.tar");
-        string command = $"\"{PDPath}\"-U{user}-d{db}-f{dump}";
-        Process process = new Process();
-        process.StartInfo.FileName = "cmd.exe";
-        process.StartInfo.Arguments = $"/C{command}";
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.CreateNoWindow = true;
-        process.Start();
-        process.WaitForExit();
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();*/
-        try
-        {
-
-
-            using (ApplicationContext dd = new ApplicationContext())
-            {
-                string dump = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dump.tar");
-                byte[] data = File.ReadAllBytes(dump);
-                account.Data = data;
-                dd.Accounts.Update(account);
-
-
-                MessageBox.Show($"Сохранение прошло успешно.");
-            }
-        }
-        catch (Exception ex) { MessageBox.Show(ex.Message); }
-    }
+    
     public void PgRestore(Account account)
     {
         
