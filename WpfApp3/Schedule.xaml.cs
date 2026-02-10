@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,20 +11,23 @@ using System.Windows.Media.Imaging;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using Newtonsoft.Json;
-using PgDump;
+using Npgsql;
 using WpfApp3.EF;
 using WpfApp3.EF.TableClasses;
 namespace WpfApp3
 {
     public partial class Schedule : Window
     {
-        public Schedule(Account account)
+        public Schedule(Account account, bool t)
         {
             string f = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "JSONs\\Save.json");
+            string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\icon.ico");
+            Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
+            this.Icon = BitmapFrame.Create(iconUri);
 
             Dop d = Load(f);
-            Shed(account);
-            
+            Shed(account, t);
+            Text.Text = d.c + " " + d.b;
             account1 = account;
         }
 
@@ -43,18 +46,19 @@ namespace WpfApp3
             }
             return null;
         }
-        List<Groups> groups1 = new();
         
-        public void Shed(Account account)
+        List<Groups> groups1 = new();
+        DataGrid dataGrid1 = new();
+        public void Shed(Account account, bool t)
         {
-            string f = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "JSONs\\Save.json");
             InitializeComponent();
+            string f = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "JSONs\\Save.json");
             string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\icon.ico");
             Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
             this.Icon = BitmapFrame.Create(iconUri);
             account1 = account;
-            MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
-            AddLesson();
+            //MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
+            if (t==true) { AddLesson(); }
             
             using (ApplicationContext db = new ApplicationContext())
             {
@@ -76,34 +80,32 @@ namespace WpfApp3
                         }
                     }
                 }
-                //string q = "";
-                //foreach (int id in subId) { q+=" "+id.ToString(); }
-                //MessageBox.Show(gro.Count.ToString());
-                //Groups[] groups = db.Groups.Where(h => h.GS.Any(i => subId.Contains(i.Subject))).ToArray();
-                //MessageBox.Show(groups.Count().ToString());
-                //int[] t = db.Groups.Select(p => p.Id).ToArray();
-
-                //q = "";
-
-                //foreach (int id in t) { q += " "+id.ToString(); }
-                //MessageBox.Show(q.ToString());
-                foreach (Groups group in gro)
+                List<Groups> groups = new();
+                using (ApplicationContext ddb = new ApplicationContext())
                 {
-                    MessageBox.Show("Вот");
+                    d = ddb.Subjects.Where(r => r.lessons != null).ToList();
+                    List<int> subId1 = d.Select(p => p.id).ToList();
+
+                    groups = ddb.Groups.Where(h => h.GS.Any(i => subId.Contains(i.Subject))).ToList();
+                }
+                foreach (Groups group in groups)
+                {
+
+                    DataGrid dataGrid1 = new();
                     groups1.Add(group);
-                    DataGrid dataGrid1 = new DataGrid();
                     dataGrid1.Width = 410;
                     dataGrid1.AutoGenerateColumns = false;
                     DataGridTextColumn column = new();
                     column.Header = "День недели";
                     column.Width = 80;
                     column.Binding = new Binding("Day");
+                    column.SortMemberPath = "Day";
                     if (dataGrid1.Columns.Contains(column)) { dataGrid1.Columns.Remove(column); }
                     dataGrid1.Columns.Add(column);
                     DataGridTextColumn column1 = new();
                     column1.Header = "Номер";
                     column1.Width = 50;
-                    column1.Binding = new Binding("numDay");
+                    column1.Binding = new Binding("NumDay");
                     if (dataGrid1.Columns.Contains(column1)) { dataGrid1.Columns.Remove(column); }
                     dataGrid1.Columns.Add(column1);
                     DataGridTextColumn column2 = new();
@@ -118,9 +120,15 @@ namespace WpfApp3
                     column3.Binding = new Binding("Cabinet");
                     if (dataGrid1.Columns.Contains(column3)) { dataGrid1.Columns.Remove(column); }
                     dataGrid1.Columns.Add(column3);
-                    db.Lessons.Where(r => r.group == group.Name).Load();
-                    dataGrid1.ItemsSource = db.Lessons.Local.ToObservableCollection();
+
+                    //db.Lessons.Where(r => r.group == group.Name).Load();
+                    //dataGrid1.ItemsSource = db.Lessons.Local.ToObservableCollection();
+                    List<Lesson> tr = db.Lessons.Where(r => r.Group == group.Name).ToList();
+
+                    dataGrid1.ItemsSource = tr;
+                    dataGrid1.Items.SortDescriptions.Add(new SortDescription("Day", ListSortDirection.Ascending));
                     StackPanel panel = new StackPanel();
+                    panel.Height = 700;
                     TextBlock block = new TextBlock();
                     block.Text = group.Name;
                     block.FontSize = 18;
@@ -128,65 +136,9 @@ namespace WpfApp3
                     dataGrid3.ItemsSource = db.Groups.ToList();
                     panel.Children.Add(dataGrid1);
                     Stack.Children.Add(panel);
-                    /*<StackPanel>
-                            <TextBlock Text="" FontSize="18"/>
-                            <DataGrid x:Name="dataGrid" AutoGenerateColumns="False" Width="410">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="День недели" Width="90" Binding="{Binding Day}" />
-                                <DataGridTextColumn Header="Номер урока" Width="50" Binding="{Binding numDay}" />
-                                <DataGridTextColumn Header="Название" Width="200" Binding="{Binding Name}" />
-                                <DataGridTextColumn Header="Кабинет" Width="70" Binding="{Binding Cabinet}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </StackPanel>*/
-                    
-                    //PgDump(account1);
-                    dataGrid3.ItemsSource = db.Groups.ToList();
                 }
             }
         }
-        /*public async void PgDump(Account account)
-        {
-            ConnectionOptions options = new ConnectionOptions("localhost", 5432, "postgres", "ksanox", "postgres");
-            PgClient client = new PgClient(options);
-
-            FileOutputProvider outputProvider = new FileOutputProvider("C:\\Program Files\\PostgreSQL\\17\\pgAdmin 4\\runtime\\dump.tar");
-
-            await client.DumpAsync(outputProvider, timeout: TimeSpan.FromMinutes(1));
-            /*string PDPath = @"C:\ProgramFiles\PostgreSQL\17\bin\pg_dump.exe";
-            string db = "postgres";
-            string user = "postgres";
-            string pass = "ksanox";
-            string dump = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dump.tar");
-            string command = $"\"{PDPath}\"-U{user}-d{db}-f{dump}";
-            Process process = new Process();
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/C{command}";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-            process.WaitForExit();
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            try
-            {
-
-
-                using (ApplicationContext dd = new ApplicationContext())
-                {
-                    string dump = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dump.tar");
-                    byte[] data = File.ReadAllBytes(dump);
-                    account.Data = data;
-                    dd.Accounts.Update(account);
-
-
-                    MessageBox.Show($"Сохранение прошло успешно.");
-                }
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
-        }*/
         Account account1 = new()
         {
             Name = "Default",
@@ -194,24 +146,26 @@ namespace WpfApp3
         };
         public Schedule(int r, int t, Account account)
         {
-
+            InitializeComponent();
             string f = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "JSONs\\Save.json");
-            
+            string s = AppDomain.CurrentDomain.BaseDirectory.ToString().Replace("bin\\Debug\\net8.0-windows10.0.19041.0\\", "Resources\\icon.ico");
+            Uri iconUri = new Uri(s, UriKind.RelativeOrAbsolute);
+            this.Icon = BitmapFrame.Create(iconUri);
+
             Dop dop = new Dop()
             {
                 b = r,
                 c = t
             };
             Save(dop, f);
-            if (Text != null && r != null && t != null)
-            {
-                Text.Text = r + "-" + t;
-            }
+            Text.Text = r + "-" + t;
             account1 = account;
-            MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
-            Shed(account);
-            
+            //MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
+            Shed(account, true);
         }
+
+        
+
         private FlowDocument Print(List<Groups> groups)
         {
             FlowDocument document = new();
@@ -242,12 +196,12 @@ namespace WpfApp3
                 tableRow.Cells.Add(new TableCell(new Paragraph(new Run("Кабинет"))));
                 table.RowGroups.Add(new TableRowGroup());
                 table.RowGroups[0].Rows.Add(tableRow);
-                foreach (Lesson lesson in db.Lessons.Where(j=>j.group == group.Name))
+                foreach (Lesson lesson in db.Lessons.Where(j=>j.Group == group.Name))
                 {
                     if (lesson.NumDay == 1) { tableRow.Cells.Add(new TableCell(new Paragraph(new Run(lesson.Day)))); }
                     
                     tableRow.Cells.Add(new TableCell(new Paragraph(new Run(lesson.NumDay.ToString()))));
-                    tableRow.Cells.Add(new TableCell(new Paragraph(new Run(lesson.group))));
+                    tableRow.Cells.Add(new TableCell(new Paragraph(new Run(lesson.Group))));
                     tableRow.Cells.Add(new TableCell(new Paragraph(new Run(lesson.Cabinet))));
                     table.RowGroups.Add(new TableRowGroup());
                     table.RowGroups[0].Rows.Add(tableRow);
@@ -289,7 +243,7 @@ namespace WpfApp3
             this.Close();
         }
         List<Subjects> list = new();
-        private async void AddLesson()
+        private void AddLesson()
         {
             using (ApplicationContext db = new ApplicationContext())
             {
@@ -297,133 +251,177 @@ namespace WpfApp3
                 if (id != 0 && db.Subjects != null)
                 {
                     List<Groups> groups = db.Groups.Where(t => t.Name != null).ToList();
-                    MessageBox.Show(groups.Count.ToString());
+                    //MessageBox.Show(groups.Count.ToString());
                     groups = groups.Where(i => i.AccountId == account1.Id).ToList();
+                    groups = groups.Where(i => i.GS != null).ToList();
+                    //MessageBox.Show(account1.Id.ToString());
+                    //MessageBox.Show(groups.Count.ToString());
+                    List<string> dayz = new List<string> { "1.Понедельник", "2.Вторник", "3.Среда", "4.Четверг", "5.Пятница" };
 
-                    MessageBox.Show(account1.Id.ToString());
-                    MessageBox.Show(groups.Count.ToString());
-                    List<string> dayz = new List<string> { "Понедельник", "Вторник", "Среда", "Четверг", "Пятница" };
-                    
-                    
+                    int j = 0;
                         foreach (string daq in dayz)
                         {
+
                         int e = 1;
                         int t = 5;
-                        for (int i = e; i < t; i++)
+                            for (int i = e; i < t; i++)
                             {
+
                             foreach (Groups group in groups)
                             {
-                                if (daq == "Понедельник" && i == 1)
+                                bool tr = false;
+                                /* switch (daq)
+                                 {
+                                     case "Понедельник":
+
+                                         break;
+                                 }*/
+                                using (var connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=ksanox"))
                                 {
+                                    connection.Open();
 
-                                    Lesson lesson = new()
+                                    // Добавление записи для понедельника
+                                    if (daq == "1.Понедельник" && i == 1)
                                     {
+                                        tr = true;
+                                        using (NpgsqlCommand command = new NpgsqlCommand("INSERT INTO public.\"Lessons\" (\"Day\", \"NumDay\", \"Group\", \"Name\", \"AccountId\") VALUES (@Day, @NumDay, @Group, @Name, @AccountId)", connection))
+                                        {
+                                            command.Parameters.AddWithValue("@Day", "1.Понедельник (1)");
+                                            command.Parameters.AddWithValue("@NumDay", 1);
+                                            command.Parameters.AddWithValue("@Group", group.Name.Trim().ToUpper());
+                                            command.Parameters.AddWithValue("@Name", "Разговоры о важном");
+                                            command.Parameters.AddWithValue("@AccountId", account1.Id);
 
-                                        Day = daq,
-                                        NumDay = 1,
-                                        group = group.Name.Trim().ToUpper(),
-                                        Name = "Разговоры о важном",
-                                        AccountId = account1.Id
-                                    };
-                                    db.Lessons.Add(lesson);
-                                    db.SaveChanges();
-                                    MessageBox.Show("пон");
-                                    i = 2;
-                                    break;
-                                }
-                                if (daq == "Четверг" && i == 4)
-                                {
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
 
-                                    
-                                    Lesson lesson = new()
+                                    // Добавление записи для четверга
+                                    if (daq == "4.Четверг" && i == 4)
                                     {
-                                        Day = daq,
-                                        NumDay = 4,
-                                        group = group.Name.Trim().ToUpper(),
-                                        Name = "Классный час",
-                                        AccountId = account1.Id
-                                    };
-                                    //t++;
-                                    db.Lessons.Add(lesson);
-                                    db.SaveChanges();
-                                    break;
+                                        tr = true;
+                                        using (NpgsqlCommand command = new NpgsqlCommand("INSERT INTO public.\"Lessons\" (\"Day\", \"NumDay\", \"Group\", \"Name\", \"AccountId\") VALUES (@Day, @NumDay, @Group, @Name, @AccountId)", connection))
+                                        {
+                                            command.Parameters.AddWithValue("@Day", "4.Четверг (4)");
+                                            command.Parameters.AddWithValue("@NumDay", 4);
+                                            command.Parameters.AddWithValue("@Group", group.Name.Trim().ToUpper());
+                                            command.Parameters.AddWithValue("@Name", "Классный час");
+                                            command.Parameters.AddWithValue("@AccountId", account1.Id);
+
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                    connection.Close();
                                 }
-                                if (daq == "Пятница")
+                                if (daq == "5.Пятница")
                                 {
                                     t = 4;
 
                                 }
+                                if (tr == false) { AddDay(daq, i, group); }
+                            }
 
-
-                                /*Groups? group = null;
-                                while (group == null) { group = await db.Groups.FindAsync(y); y++; }*/
-#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
-                                List<Subjects> dq = await db.Subjects.Where(e => e.GS.Any(q => q.Group == group.Id)).ToListAsync();
-#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
-
-                                MessageBox.Show(dq.Count.ToString()+"dq");
-                                List<Subjects> sq = [];
-                                    Random random = new Random();
-                                    foreach (Subjects item in dq)
-                                    {
-                                        if (item.num > 0)
-                                        {
-
-                                            sq.Add(item);
-                                        }
-                                    }
-                                    if (sq.Count==0)
-                                    {
-                                        break;
-                                    }
-                                    int w = sq.Count -1;
-                                MessageBox.Show(sq.Count.ToString()+"sq");
-                                Subjects subject = sq[random.Next(w)];
-                                Lesson lesson1 = new()
-                                {
-                                    Day = daq,
-                                    NumDay = i,
-                                    group = group.Name.Trim().ToUpper(),
-                                    Name = subject.Name,
-                                    Cabinet = subject.Cabinet,
-                                    AccountId = account1.Id
-                                };
-
-                                if (!db.Lessons.Any(r=>r.Cabinet == lesson1.Cabinet) && !db.Lessons.Any(r => r.Day == lesson1.Day) && !db.Lessons.Any(r => r.NumDay == lesson1.NumDay))
-                                {
-
-                                    subject.num--;
-                                    db.Subjects.Update(subject);
-                                    db.Lessons.Add(lesson1);
-                                    db.SaveChanges();
-                                }
-                                MessageBoxResult message = MessageBox.Show("Вы хотите сохранить результат?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                                
-                                if (message == MessageBoxResult.Yes) 
-                                {
-                                    //App app = new App();
-                                    //PgDump(account1);
-                                    Word word = new Word();
-                                    word.CreateWord();
-                                }
-                                else
-                                {
-                                    db.Subjects.UpdateRange(list);
-                                    AddLesson();
-                                }
-                            } 
                         }
                     }
+                    //MessageBox.Show(j.ToString());
+                }
+                MessageBoxResult message = MessageBox.Show("Вы хотите сохранить результат?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                            if (message == MessageBoxResult.Yes)
+                            {
+                                //App app = new App();
+                                //PgDump(account1);
+                                Word word = new Word();
+                    word.CreateWord(documentViewer);
+                            }
+                            else
+                            {
+                    db.Subjects.UpdateRange(list);
+                    db.SaveChanges();
+                                AddLesson();
+                }
+
+            }
+
+            
+
+
+            }
+
+        private async void AddDay(string daq, int i, Groups group)
+        {
+            int v = 30;
+            while (v > 0)
+            {
+
+
+                using (ApplicationContext db = new())
+                {
+#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+                    List<Subjects> dq = await db.Subjects.Where(e => e.GS.Any(q => q.Group == group.Id)).ToListAsync();
+                    if (dq == null)
+                    {
+                        //MessageBox.Show(dq.Count.ToString() + "ошибкаdq");
+                        break;
+                    }
+
+#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+
+
+                    List<Subjects> sq = new();
+                    Random random = new Random();
+                    foreach (Subjects item in dq)
+                    {
+                        //ih++;
+                        if (item.num > 0)
+                        {
+                            //ij++;
+                            sq.Add(item);
+                        }
+                    }
+                    //MessageBox.Show(ih.ToString() + "dq + "+ij);
+
+                    if (sq.Count == 0)
+                    {
+                        //MessageBox.Show(sq.Count.ToString() + "ошибкаsq");
+                        break;
+                    }
+                    int w = sq.Count - 1;
+                    //MessageBox.Show(sq.Count.ToString()+"sq");
+                    Subjects subject = sq[random.Next(w)];
+                    Lesson lesson1 = new()
+                    {
+                        Day = daq+" ("+i+")",
+                        NumDay = i,
+                        Group = group.Name.Trim().ToUpper(),
+                        Name = subject.Name,
+                        Cabinet = subject.Cabinet,
+                        AccountId = account1.Id
+                    };
+                    //MessageBox.Show(lesson1.Name + " " + lesson1.Cabinet);
+                    /*if (db.Lessons.Any(r => r.Cabinet == lesson1.Cabinet) && db.Lessons.Any(r => r.Day == lesson1.Day) && db.Lessons.Any(r => r.NumDay == lesson1.NumDay) && db.Lessons.Any(r => r.group == lesson1.group))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                    */
+                    subject.num--;
+                    db.Subjects.Update(subject);
+                    db.Lessons.Add(lesson1);
+                    db.SaveChanges();
+                    v = 0;
+                    //tr.Add(lesson1);
+                    //dataGrid1.Items.Add(lesson1);
+                    //j++;
+                    //}
+                    //MessageBox.Show("Успех");
                 }
             }
-                
+            
+        }
 
 
-
-            }
-
-
-        
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             using (ApplicationContext db = new ApplicationContext())
@@ -432,7 +430,12 @@ namespace WpfApp3
                 Groups group = db.Groups.FirstOrDefault(i => i.Name == Text1.Text.Trim().ToUpper());
                 if (group != null)
                 {
-                    dataGrid2.ItemsSource = db.Students.Where(i => i.group == group);
+                    List<Student> students = db.Students.Where(i => i.group == group).ToList();
+                    foreach (Student student in students)
+                    {
+                    dataGrid2.Items.Add(student);
+
+                    }
                 }
                 else 
                 {
@@ -455,7 +458,7 @@ namespace WpfApp3
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             Word word = new Word();
-            word.CreateWord();
+            word.CreateWord(documentViewer);
             MimeMessage message = new MimeMessage();
             //message.From.Add()
         }
@@ -463,7 +466,7 @@ namespace WpfApp3
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             Word word = new Word();
-            word.CreateWord();
+            word.CreateWord(documentViewer);
         }
     }
 }

@@ -51,7 +51,7 @@
                         <TextBox Name="comboSubject" Width="154"/>
                         <TextBlock Text="Группы:"  Width="154"/>
                         <ScrollViewer Width="154">
-                            <ListBox Name="List" Width="154" Height="100"/>
+                            <ListBox Name="List1" Width="154" Height="100"/>
                         </ScrollViewer>
 
                         <DockPanel Width="154">
@@ -61,7 +61,7 @@
                         </DockPanel>
 
                         <TextBlock Text="Кабинет:" Width="154"/>
-                        <TextBox x:Name="txtFullNam" Width="154" TextChanged="txtFullNam_TextChanged"/>
+                        <TextBox x:Name="txtFullNam" Width="154"/>
                         <TextBlock Text="Количество пар:" Width="154"/>
                         <TextBox x:Name="txtFullNam1" KeyDown="Text_KeyDown" Width="154"/>
                         <TextBlock Text="" Width="154"/>

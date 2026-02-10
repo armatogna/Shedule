@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Npgsql;
 using WpfApp3.EF;
 using WpfApp3.EF.TableClasses;
 
@@ -39,36 +40,34 @@ namespace WpfApp3
             this.Icon = BitmapFrame.Create(iconUri);
             account1 = account;
 
-            MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
+            //MessageBox.Show($"{account1.Name}{account1.Id.ToString()}");
         }
         public bool a = false;
         public void Schedule_Click(object sender, RoutedEventArgs e)
         {
-            Schedule schedule = new Schedule(account1);
+            Schedule schedule = new Schedule(account1, false);
             schedule.Show();
             this.Close();
             
         }
         public void Main_Click(object sender, RoutedEventArgs e)
         {
-            using (ApplicationContext db = new ApplicationContext())
+            using (NpgsqlConnection connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=ksanox"))
             {
-                using (var transaction = db.Database.BeginTransaction())
+                connection.Open();
+
+                using (NpgsqlTransaction transaction = connection.BeginTransaction())
                 {
-
-                    //List<Subjects> entity = db.Subjects.ToList();
-                    List<Lesson> entity = db.Lessons.Where(o=>o.AccountId == account1.Id).ToList();
-                    //List<Student> ent = db.Students.ToList();
-                    //db.Subjects.RemoveRange(entity);
-                    //db.Students.RemoveRange(ent);
-                    //var w = db.Groups.ToList();
-                    db.Lessons.RemoveRange(entity);
-                    db.SaveChanges();
-
+                    // Удаление записей из таблицы Lessons
+                    using (NpgsqlCommand command = new NpgsqlCommand("DELETE FROM public.\"Lessons\" WHERE \"AccountId\" = @AccountId", connection))
+                    {
+                        command.Parameters.AddWithValue("@AccountId", account1.Id);
+                        command.ExecuteNonQuery();
+                    }
 
                     transaction.Commit();
                 }
-
+                connection.Close();
             }
             MainWindow schedule = new MainWindow(account1);
             schedule.Show();

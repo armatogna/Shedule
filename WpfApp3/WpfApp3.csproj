@@ -27,13 +27,8 @@
     <None Remove="EF\TableClasses\Lesson.cs~RF569cbda.TMP" />
     <None Remove="ico3.ico" />
     <None Remove="lx2430h4.utv~" />
-    <None Remove="Resources\icon.bmp" />
     <None Remove="Resources\icon.ico" />
     <None Remove="Schedule.xaml~RF10db7b00.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Resources\iconF.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,9 +72,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\icon.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\icon.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

@@ -47,7 +47,7 @@ namespace WpfApp3
                 comboS.DisplayMemberPath = "Name";
                 db.Students.RemoveRange(db.Students.Where(e => e.fullName == null));
                 List<Student> q = db.Students.ToList();
-                dataGrid.ItemsSource = q;
+                dataGrid3.ItemsSource = q;
                 db.SaveChanges();
 
             }
@@ -77,6 +77,12 @@ namespace WpfApp3
                         {
                             A.Cabinet = Tet1.Text;
                         }
+                        var lessons = db.Lessons.Where(e => e.Name == A.Name).ToList();
+                        foreach (Lesson lesson in lessons)
+                        {
+                            lessons[lesson.Id].Name = A.Name;
+                        }
+                        db.Lessons.UpdateRange(lessons);
                         db.Subjects.Update(A);
                         db.SaveChanges();
                         Text2.Clear();
@@ -90,7 +96,13 @@ namespace WpfApp3
                 else
                 {
                     Text2.Background = Brushes.LightPink;
-                    Text2.ToolTip = "Предмета с данным ID не существует.";
+                    Text2.ToolTip = "Ошибка.";
+                    Text3.Background = Brushes.LightPink;
+                    Text3.ToolTip = "Ошибка.";
+                    Text4.Background = Brushes.LightPink;
+                    Text4.ToolTip = "Ошибка.";
+                    Text5.Background = Brushes.LightPink;
+                    Text5.ToolTip = "Ошибка.";
                 }
 
             }
@@ -157,10 +169,23 @@ namespace WpfApp3
                     if (A!=null) { if (Tet1.Text != null)
                         {
                             A.Name = Tet1.Text;
+                            var lessons = db.Lessons.Where(e=>e.Group == A.Name).ToList();
+                            foreach (Lesson lesson in lessons)
+                            {
+                                lessons[lesson.Id].Group = A.Name;
+                            }
+                            db.Lessons.UpdateRange(lessons);
+                            var students = db.Students.Where(e => e.group == A).ToList();
+                            foreach (Student lesson in students)
+                            {
+                                students[lesson.id].group = A;
+                            }
+                            db.Students.UpdateRange(students);
                             db.Groups.Update(A);
                             db.SaveChanges();
                             Text.Clear();
                             Tet1.Clear();
+
                         } 
                     }
                 }

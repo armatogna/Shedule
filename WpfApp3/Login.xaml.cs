@@ -65,15 +65,17 @@ namespace WpfApp3
                 {
                     List<Account> accounts = db.Accounts.Where(i => i.Name == t1.Text).ToList();
                     y = accounts.FirstOrDefault(k => k.Password == t2.Text);
-                    MessageBox.Show($"{y.Name}{y.Id.ToString()}");
+                    //MessageBox.Show($"{y.Name}{y.Id.ToString()}");
                 }
-                if (y.Name != "")
+                if (y != null)
                 {
                     OpenWindow openWindow = new OpenWindow(y);
                     openWindow.Show();
                     this.Close();
 
                 }
+                t1.Clear();
+                t2.Clear();
             }
 
         }
